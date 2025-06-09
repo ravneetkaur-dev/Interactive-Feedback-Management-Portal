@@ -1,19 +1,16 @@
 .bodyCenter {
-  /* height: 100%; */
   margin: 0;
   padding: 0;
   background-color: rgb(35, 22, 16); 
   font-family: 'Inter', sans-serif;
   color: rgb(35, 22, 16);
-  display: flex;
-  overflow: visible;
-  justify-content: center;
-  align-items: center;
+  display: block;
 }
 
 .container {
   position: relative;
   text-align: center;
+  margin: 140px auto;
   width: 500px;
   padding: 40px;
   background-color: rgb(240, 240, 201); 
@@ -114,8 +111,9 @@ hr {
 .container2 {
   height: auto;
   text-align: center;
-  margin-top: 50px;
-  margin-bottom: 50px;
+  margin: 50px auto;
+  /* margin-top: 50px;
+  margin-bottom: 50px; */
   width: 700px;
   padding: 40px;
   background-color: beige;
@@ -234,6 +232,7 @@ textarea {
 .container_admin {
   position: relative;
   text-align: center;
+  margin: 40px auto;
   width: 300px;
   padding: 40px;
   background-color: rgb(240, 240, 201); 
