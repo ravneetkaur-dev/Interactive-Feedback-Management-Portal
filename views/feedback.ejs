@@ -1,0 +1,117 @@
+<!-- <!DOCTYPE html> -->
+<html class="bodycenter">
+  <head>
+    <title>Give-Feedback</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+  <body class="bodycenter">
+    
+    <div class="container2">
+      <img src="/images/voices.png" alt="voices in ink" class="logo1"><br><br>
+      <span class="feed-span">
+        Feedback Wall
+      </span>
+      <h3 class="tagline2"><i><b>Speak gently, but truly - the wall remembers.</b></i></h3>
+      <hr>
+      <br>
+      <form action="/feedback/" method="post">
+        <h2>Your Thoughts, Categorized</h2>
+          <h3>-- Give Your Ratings for Each Category --</h3>
+          
+          <div class="category">
+            <div class="left">
+              <label for="c1">Lesson Content </label>
+              <label for="c2">Teacher's Explanation </label>
+              <label for="c3">Class Engagement </label>
+              <label for="c4">Pacing of the Lesson </label>
+              <label for="c5">Materials Provided </label>
+              <label for="c6">Classroom Environment </label>
+              <label for="c7">Assignments / Homework </label>
+              <label for="c8">Assessment </label>
+              <label for="c9">General Experience </label>
+            </div>
+            <div class="right">
+            <input type="number" id="c1" min="1" max="10" name="lessonContent" required><br>
+            <input type="number" id="c2" min="1" max="10" name="teacherExplanation" required><br>
+            <input type="number" id="c3" min="1" max="10" name="classEngagement" required><br>
+            <input type="number" id="c4" min="1" max="10" name="pacing" required><br>
+            <input type="number" id="c5" min="1" max="10" name="materials" required><br>
+            <input type="number" id="c6" min="1" max="10" name="environment" required><br>
+            <input type="number" id="c7" min="1" max="10" name="homework" required><br>
+            <input type="number" id="c8" min="1" max="10" name="assessment" required><br>
+            <input type="number" id="c9" min="1" max="10" name="generalExperience" required><br>
+            </div>
+            
+          </div>
+        <br><br>
+        
+        <label for="comment"><h4>Your Feedback:</h4><i><span class="tag3">(Speak freely. No names. No judgment.)</span></i></label><br><br>
+        <textarea id="comment" name="comment" rows="7" cols="60" placeholder="Write your thoughts here......" required></textarea><br><br>
+        <input type="submit" class="btn"><br><br>
+        <%if(typeof success !=='undefined'&&success){%>
+          <p id="success" style="visibility: visible;"><%=success%></p>
+        <%}%>
+        <br><br>
+      </form>
+
+      <hr><br><br>
+      <span class="feed-span">Recent Feedbacks</span><br><br><br>
+      <%if(typeof feedbacks===undefined){%>
+        <p id="message" style="visibility: visible;"><%=message%></p>
+      <%}else{%>
+      <div class="feedback-list">
+        <%feedbacks.forEach(msg=>{%>
+          <div class="feedback-msg">
+            <p><%=msg.comment%></p>
+            <button class="likebtn" data-id="<%= msg._id %>">
+              👍 <span id="like-<%= msg._id %>"><%= msg.likes %></span>
+            </button>
+            <button class="dislikebtn" data-id="<%= msg._id %>">
+              👎 <span id="dislike-<%= msg._id %>"><%= msg.dislikes %></span>
+            </button>
+          </div>
+        <%})%>
+      </div>
+      <%}%>
+      <footer class="feedFoot"><i>Even without a name, your voice finds its way. <br> Crafted in quiet by - R.K.</i></footer>
+    </div>
+
+    
+
+    <script>
+      document.querySelectorAll('.likebtn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault(); 
+          const id = btn.getAttribute('data-id');
+          const res = await fetch(`/feedback/likes/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            document.getElementById(`like-${id}`).innerText = data.likes;
+          }
+        });
+      });
+      document.querySelectorAll('.dislikebtn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault(); 
+          const id = btn.getAttribute('data-id');
+          const res = await fetch(`/feedback/dislikes/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            document.getElementById(`dislike-${id}`).innerText = data.dislikes;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
+
+
+

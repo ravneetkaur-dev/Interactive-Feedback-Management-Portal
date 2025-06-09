@@ -1,0 +1,206 @@
+<html>
+    <head>
+        <title>Admin Dashborad</title>
+        <link rel="stylesheet" href="/css/style.css">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    </head>
+    <body id="admin">
+        <nav class="navbar">
+            <img src="/images/voices.png" alt="voices in ink" class="logo2"> 
+            <ul class="navLinks">
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/analysis">Detailed Analysis</a></li>
+                <li><a href="/admin/logout">Logout</a></li>
+            </ul>
+        </nav>
+        <div class="DashboardContainer">
+            <h1 class="adminHeading">Admin Dashboard</h1>
+            <div class="cardContainer">
+                <div class="card">
+                    <span class="cardVAlue"><%=totalFeedbacks%></span>
+                    <span>Total Feedbacks</span>
+                </div>
+                <div class="card">
+                    <span class="cardValue"><%=avgExperience%></span>
+                    <span>Average Experience</span>
+                </div>
+               <div class="card">
+                    <span class="cardValue"><%=totalLikes%></span>
+                    <span>Total Likes</span>
+               </div> 
+                <div class="cardRight">
+                    <span class="cardValue"><%=totalDislikes%></span>
+                    <span>Total Dislikes</span>
+                </div>
+                
+            </div>
+            
+            <div class="chartsContainer">
+                <canvas id="weeklyChart" height="300" width="300"></canvas>
+                <canvas id="monthlyChart" height="300" width="400"></canvas>
+            </div>
+            <div class="chartsContainer">
+                <canvas id="categoryChart" height="400" width="500"></canvas><br>
+
+                <div class="customContainer">
+                    <label class="customLabel">Start Date: <input type="date" id="startDate" class="customInput"></label>
+                    <label class="customLabel">End Date: <input type="date" id="endDate" class="customInput"></label><br>
+                <button id="customRangeBtn">Show Analytics</button>
+                <canvas id="customRangeChart" height="300" width="300"></canvas>
+
+                </div>
+                
+            </div>
+            
+        </div>
+
+        <footer class="adminFoot">Crafted in quite by- R.K.</footer>
+
+        <script>
+            const weeklyData = <%- JSON.stringify(weeklyData) %>;
+            const monthlyData = <%- JSON.stringify(monthlyData) %>;
+            const categoryData = <%- JSON.stringify(categoryData) %>;
+            const weekColors= <%- JSON.stringify(weekColors)%>;
+            const monthColors= <%- JSON.stringify(monthColors)%>;
+            const categoryColors= <%- JSON.stringify(categoryColors)%>;
+        </script>
+
+        </script>
+
+        <script>
+            function renderChart(ctxId, chartType, labels, data, labelText, color, title) {
+                const ctx = document.getElementById(ctxId).getContext('2d');
+                return new Chart(ctx, {
+                    type: chartType,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: labelText,
+                            data: data,
+                            backgroundColor: color,
+                            borderColor: 'beige',
+                            borderWidth: 1,
+                        }]
+                    },
+                    options: {
+                        responsive: false,
+                        plugins: {
+                            title:{
+                                display: true,
+                                text: title,
+                                color: 'beige',
+                                font:{
+                                    size:18,
+                                    weight: 'bold'
+                                }
+                            },
+                            legend: {
+                                labels: {
+                                    color: 'white', 
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#333', // dark tooltip
+                                titleColor: '#fff',
+                                bodyColor: '#fff'
+                            }
+                        },
+                        scales: chartType === 'bar' || chartType === 'line' ? {
+                            x: {
+                                ticks: {
+                                    color: 'white'
+                                },
+                                grid: {
+                                    color: 'rgba(255,255,255,0.1)'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: 'white'
+                                },
+                                grid: {
+                                    color: 'rgba(255,255,255,0.1)'
+                                }
+                            }
+                        } : {}
+                    }
+                    });
+            }
+            renderChart(
+                'weeklyChart',
+                'line',
+                weeklyData.map(d => d.label),
+                weeklyData.map(d => d.value),
+                'Weekly Feedback Count',
+                weekColors,
+                'Weekly Analysis'
+            );
+
+            renderChart(
+                'monthlyChart',
+                'bar',
+                monthlyData.map(d => d.label),
+                monthlyData.map(d => d.value),
+                'Monthly Feedback Count',
+                monthColors,
+                'Monthly Analysis'
+            );
+
+            renderChart(
+                'categoryChart',
+                'doughnut',
+                categoryData.map(d => d.label),
+                categoryData.map(d => d.value),
+                'Category-wise Averages',
+                categoryColors,
+                'Category-Based Analysis'
+            );
+
+            let customChart;
+
+            document.getElementById('customRangeBtn').addEventListener('click', async()=>{
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+
+                if (!startDate||!endDate) {
+                    alert("Please select both start and end dates.");
+                    return;
+                }
+
+                const response=await fetch('/admin/dashboard/customData',{
+                    method:'POST',
+                    headers:{
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({ startDate, endDate })
+                });
+
+                const result= await response.json();
+
+                if (result.success) {
+                    const labels= result.data.map(d => d.label);
+                    const values= result.data.map(d => d.value);
+
+                    if(customChart) customChart.destroy();
+
+                    customChart= renderChart(
+                        'customRangeChart',
+                        'pie',
+                        labels,
+                        values,
+                        'Custom Range Analysis',
+                        categoryColors,
+                        'Custom Analysis'
+                    );
+                } else {
+                    alert("Failed to load custom data.");
+                }
+            });
+        </script>
+    </body>
+</html>
